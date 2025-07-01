@@ -1,1 +1,101 @@
-PLACEHOLDER TO BE REPLACED IN ACTUAL SYSTEM
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>圓滿宮聖事報名</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+</head>
+<body>
+  <h1>圓滿宮聖事報名</h1>
+  <p>一人最多報名三個名額。</p>
+
+  <label for="date">選擇辦事日期：</label>
+  <select id="date">
+    <option value="2025-07-12">2025-07-12</option>
+    <option value="2025-07-20">2025-07-20</option>
+  </select>
+
+  <label for="time">選擇時段：</label>
+  <select id="time"></select>
+
+  <label for="name">暱稱：</label>
+  <input type="text" id="name" />
+
+  <label for="type">事由：</label>
+  <select id="type">
+    <option value="第一次問事">第一次問事</option>
+    <option value="問事">問事</option>
+    <option value="開單">開單</option>
+  </select>
+
+  <button id="submit">提交報名</button>
+  <div id="success-msg"></div>
+  <script>
+    const { createClient } = supabase;
+    const supabaseUrl = 'https://ygtffksgngkwpuxpfuez.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlndGZma3Nnbmdrd3B1eHBmdWV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEzNjgwMjIsImV4cCI6MjA2Njk0NDAyMn0.o25-6PeqngEQdGGFw5n0JRkn7tdxrJuNGPbzdvTATY8';
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const TIMES = [];
+    for (let h = 9; h <= 17; h++) {
+      for (let m of [0, 30]) {
+        if (h === 12) continue;
+        TIMES.push(`${String(h).padStart(2, '0')}:${m === 0 ? '00' : '30'}`);
+      }
+    }
+
+    const dateSelect = document.getElementById('date');
+    const timeSelect = document.getElementById('time');
+    const nameInput = document.getElementById('name');
+    const typeSelect = document.getElementById('type');
+    const submitBtn = document.getElementById('submit');
+    const successMsg = document.getElementById('success-msg');
+
+    async function updateTimeOptions() {
+      const date = dateSelect.value;
+      const { data } = await supabase.from('signups').select('*').eq('date', date);
+      const filled = {};
+      TIMES.forEach(t => filled[t] = []);
+      data.forEach(item => filled[item.time].push(item.nickname));
+      timeSelect.innerHTML = '';
+      TIMES.forEach(t => {
+        const option = document.createElement('option');
+        option.value = t;
+        option.textContent = `${t}（${filled[t].length}人）`;
+        if (filled[t].length >= 1) option.disabled = true;
+        timeSelect.appendChild(option);
+      });
+    }
+
+    dateSelect.addEventListener('change', updateTimeOptions);
+    updateTimeOptions();
+
+    submitBtn.addEventListener('click', async () => {
+      const nickname = nameInput.value.trim();
+      const type = typeSelect.value;
+      const date = dateSelect.value;
+      const time = timeSelect.value;
+
+      const { data: existing } = await supabase.from('signups').select('*').eq('nickname', nickname);
+      if (existing.length >= 3) {
+        alert('一人最多三個名額');
+        return;
+      }
+
+      const { data: slotCheck } = await supabase.from('signups').select('*').eq('date', date).eq('time', time);
+      if (slotCheck.length >= 1) {
+        alert('該時段已滿');
+        return;
+      }
+
+      const { error } = await supabase.from('signups').insert([{ nickname, type, date, time }]);
+      if (!error) {
+        successMsg.textContent = '報名成功，祝闔家平安';
+        updateTimeOptions();
+      }
+    });
+  </script>
+</body>
+</html>
