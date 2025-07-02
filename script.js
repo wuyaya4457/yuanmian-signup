@@ -2,7 +2,7 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 const supabase = createClient(
   "https://ygtffksgngkwpuxpfuez.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlndGZma3Nnbmdrd3B1eHBmdWV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEzNjgwMjIsImV4cCI6MjA2Njk0NDAyMn0.o25-6PeqngEQdGGFw5n0JRkn7tdxrJuNGPbzdvTATY8"
 )
 
 const dateSelect = document.getElementById('dateSelect');
