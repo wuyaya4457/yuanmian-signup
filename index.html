@@ -1,11 +1,12 @@
 <!DOCTYPE html>
+
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>圓滿宮聖事報名</title>
-  <link rel="manifest" href="manifest.json">
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>圓滿宮聖事報名</title>
+<link href="manifest.json" rel="manifest"/>
+<style>
     body {
       font-family: "Noto Sans TC", sans-serif;
       background: linear-gradient(to bottom right, #fdf6f0, #f3ece6);
@@ -82,16 +83,15 @@
       .container { padding: 2rem 1.5rem; }
     }
   </style>
-  <script>
+<script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js');
       });
     }
   </script>
-
-  <link rel="manifest" href="manifest.json">
-  <style>
+<link href="manifest.json" rel="manifest"/>
+<style>
     .stars {
       position: fixed;
       width: 100%;
@@ -109,7 +109,7 @@
       display: none;
     }
   </style>
-  <script>
+<script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js');
@@ -117,48 +117,38 @@
     }
   </script>
 </head>
-
 <body>
-  <div class="stars"></div>
-  <audio autoplay loop>
-    <source src="https://cdn.pixabay.com/audio/2022/07/25/audio_76e151ffb7.mp3" type="audio/mpeg">
-  </audio>
-
-  <div class="container">
-    <img src="./logo.png" alt="圓滿宮 Logo" class="logo"/>
-    <h2>圓滿宮聖事報名</h2>
-    <p><strong>提醒：</strong>一人最多報名三個名額。</p>
-
-    <label for="date">辦事日期：</label>
-    <select id="date">
-      <option value="2025-07-12">2025-07-12</option>
-      <option value="2025-07-20">2025-07-20</option>
-    </select>
-    <div class="counter" id="counter"></div>
-
-    <label for="time">時段選擇：</label>
-    <select id="time"></select>
-
-    
-    <label for="realname">姓名：</label>
-    <input type="text" id="realname" placeholder="請輸入真實姓名">
-    <label for="name">暱稱 / 代號：</label>
-    <input type="text" id="name" placeholder="請輸入暱稱">
-
-    <label for="type">事由：</label>
-    <select id="type">
-      <option value="第一次問事">第一次問事</option>
-      <option value="問事">問事</option>
-      <option value="開單">開單</option>
-    </select>
-
-    <button id="submit">提交報名</button>
-    <button id="export-btn">匯出 Excel</button>
-
-    <div id="success-msg"></div>
-  </div>
-
-  <script type="module">
+<div class="stars"></div>
+<audio autoplay="" loop="">
+<source src="https://cdn.pixabay.com/audio/2022/07/25/audio_76e151ffb7.mp3" type="audio/mpeg"/>
+</audio>
+<div class="container">
+<img alt="圓滿宮 Logo" class="logo" src="./logo.png"/>
+<h2>圓滿宮聖事報名</h2>
+<p><strong>提醒：</strong>一人最多報名三個名額。</p>
+<label for="date">辦事日期：</label>
+<select id="date">
+<option value="2025-07-12">2025-07-12</option>
+<option value="2025-07-20">2025-07-20</option>
+</select>
+<div class="counter" id="counter"></div>
+<label for="time">時段選擇：</label>
+<select id="time"></select>
+<label for="realname">姓名：</label>
+<input id="realname" placeholder="請輸入真實姓名" type="text"/>
+<input id="realname" placeholder="請輸入真實姓名" type="text"/><label for="realname">姓名：</label><input id="realname" placeholder="請輸入真實姓名" type="text"/><label for="realname">姓名：</label><label for="name">暱稱 / 代號：</label>
+<input id="name" placeholder="請輸入暱稱" type="text"/>
+<label for="type">事由：</label>
+<select id="type">
+<option value="第一次問事">第一次問事</option>
+<option value="問事">問事</option>
+<option value="開單">開單</option>
+</select>
+<button id="submit">提交報名</button>
+<button id="export-btn">匯出 Excel</button>
+<div id="success-msg"></div>
+</div>
+<script type="module">
     import { createClient } from "https://esm.sh/@supabase/supabase-js";
 
     const supabase = createClient(
@@ -205,6 +195,8 @@
 
     submitBtn.addEventListener('click', async () => {
       const nickname = nameInput.value.trim();
+      const realname = document.getElementById('realname').value.trim();
+      const realname = document.getElementById('realname').value.trim();
       const realname = document.getElementById('realname').value.trim();
       const type = typeSelect.value;
       const date = dateSelect.value;
