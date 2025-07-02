@@ -191,15 +191,16 @@
         const nickname = document.getElementById("nickname").value;
         const reason = document.getElementById("reason").value;
         const dateRaw = document.getElementById("date").value;
+        const date = dateRaw.split(" ")[0]; // 格式：YYYY-MM-DD
         const time = document.getElementById("time").value;
-        const date = dateRaw.split(" ")[0];
+        const date = dateRaw.split(" ")[0]; // 格式：YYYY-MM-DD
 
         if (!nickname || !reason || !date || !time) {
           alert("請完整填寫資料！");
           return;
         }
 
-        const count = await updateCount(date);
+        const count = await updateCount(date); // 查詢當日報名數
         if (count >= 15) {
           alert("本日已額滿，請選擇其他日期！");
           return;
