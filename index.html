@@ -4,35 +4,147 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>圓滿宮聖事報名</title>
-  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: "Noto Sans TC", sans-serif;
+      background: linear-gradient(135deg, #fff8f0, #ffe4e1);
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 500px;
+      background-color: #ffffffdd;
+      margin: 2em auto;
+      padding: 2em;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 1em;
+      color: #b3443c;
+    }
+
+    .logo {
+      width: 100px;
+      margin-bottom: 1em;
+    }
+
+    form {
+      text-align: left;
+    }
+
+    label {
+      margin-top: 1em;
+      display: block;
+      color: #333;
+      font-weight: bold;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.6em;
+      margin-top: 0.3em;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 1em;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 1.5em;
+      padding: 0.8em;
+      font-size: 1.1em;
+      color: #fff;
+      background-color: #b3443c;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #912f29;
+    }
+  </style>
 </head>
 <body>
-  <h1>圓滿宮聖事報名</h1>
-  <form id="bookingForm">
-    <label for="nickname">暱稱 / 代號：</label>
-    <input type="text" id="nickname" name="nickname" required />
+  <div class="container">
+    <img src="logo.png" alt="圓滿宮Logo" class="logo" />
+    <h1>圓滿宮聖事報名</h1>
+    <form id="bookingForm">
+      <label for="nickname">暱稱 / 代號：</label>
+      <input type="text" id="nickname" name="nickname" required />
 
-    <label for="reason">事由：</label>
-    <select id="reason" name="reason" required>
-      <option value="">請選擇</option>
-      <option value="第一次問事">第一次問事</option>
-      <option value="問事">問事</option>
-      <option value="開單">開單</option>
-    </select>
+      <label for="reason">事由：</label>
+      <select id="reason" name="reason" required>
+        <option value="">請選擇</option>
+        <option value="第一次問事">第一次問事</option>
+        <option value="問事">問事</option>
+        <option value="開單">開單</option>
+      </select>
 
-    <label for="date">辦事日期：</label>
-    <select id="date" name="date" required>
-      <option value="">請選擇</option>
-      <option value="2025-07-12">7月12日（五）</option>
-      <option value="2025-07-20">7月20日（日）</option>
-    </select>
+      <label for="date">辦事日期：</label>
+      <select id="date" name="date" required>
+        <option value="">請選擇</option>
+        <option value="2025-07-12">7月12日（五）</option>
+        <option value="2025-07-20">7月20日（日）</option>
+      </select>
 
-    <label for="time">時段：</label>
-    <select id="time" name="time" required></select>
+      <label for="time">時段：</label>
+      <select id="time" name="time" required></select>
 
-    <button type="submit" id="submitBtn">送出</button>
-  </form>
+      <button type="submit" id="submitBtn">送出</button>
+    </form>
+  </div>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const timeSelect = document.getElementById("time");
+      const dateSelect = document.getElementById("date");
+      const form = document.getElementById("bookingForm");
 
-  <script src="script.js" defer></script>
+      const times = [
+        "09:00", "09:30", "10:00", "10:30",
+        "11:00", "11:30",
+        "13:00", "13:30", "14:00", "14:30",
+        "15:00", "15:30", "16:00", "16:30",
+        "17:00"
+      ];
+
+      function populateTimes() {
+        timeSelect.innerHTML = "";
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "請選擇";
+        timeSelect.appendChild(opt);
+        times.forEach(t => {
+          const option = document.createElement("option");
+          option.value = t;
+          option.textContent = t;
+          timeSelect.appendChild(option);
+        });
+      }
+
+      dateSelect.addEventListener("change", populateTimes);
+      populateTimes();
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        const nickname = document.getElementById("nickname").value;
+        const reason = document.getElementById("reason").value;
+        const date = document.getElementById("date").value;
+        const time = document.getElementById("time").value;
+        if (!nickname || !reason || !date || !time) {
+          alert("請完整填寫資料！");
+          return;
+        }
+        alert("報名成功，祝闔家平安！");
+        form.reset();
+      });
+    });
+  </script>
 </body>
 </html>
