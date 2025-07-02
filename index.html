@@ -136,8 +136,7 @@
 <select id="time"></select>
 <label for="realname">姓名：</label>
 <input id="realname" placeholder="請輸入真實姓名" type="text"/>
-<input id="realname" placeholder="請輸入真實姓名" type="text"/><label for="realname">姓名：</label><input id="realname" placeholder="請輸入真實姓名" type="text"/><label for="realname">姓名：</label><label for="name">暱稱 / 代號：</label>
-<input id="name" placeholder="請輸入暱稱" type="text"/>
+<input id="realname" placeholder="請輸入真實姓名" type="text"/><label for="realname">姓名：</label><input id="realname" placeholder="請輸入真實姓名" type="text"/><label for="realname">姓名：</label>
 <label for="type">事由：</label>
 <select id="type">
 <option value="第一次問事">第一次問事</option>
@@ -194,7 +193,8 @@
     window.addEventListener('DOMContentLoaded', updateTimeOptions);
 
     submitBtn.addEventListener('click', async () => {
-      const nickname = nameInput.value.trim();
+      // 暱稱已移除，只使用 realname
+      const realname = document.getElementById('realname').value.trim();
       const realname = document.getElementById('realname').value.trim();
       const realname = document.getElementById('realname').value.trim();
       const realname = document.getElementById('realname').value.trim();
@@ -215,7 +215,7 @@
         return;
       }
 
-      const { error } = await supabase.from('signups').insert([{ nickname, realname, type, date, time }]);
+      const { error } = await supabase.from('signups').insert([{ realname, realname, type, date, time }]);
       if (!error) {
         successMsg.textContent = '報名成功，祝闔家平安';
         updateTimeOptions();
