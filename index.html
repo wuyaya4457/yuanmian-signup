@@ -134,9 +134,7 @@
 <div class="counter" id="counter"></div>
 <label for="time">時段選擇：</label>
 <select id="time"></select>
-<label for="realname">姓名：</label>
-<input id="realname" placeholder="請輸入真實姓名" type="text"/>
-<input id="realname" placeholder="請輸入真實姓名" type="text"/><label for="realname">姓名：</label><input id="realname" placeholder="請輸入真實姓名" type="text"/><label for="realname">姓名：</label>
+<label for="realname">姓名/暱稱：</label><input id="realname" placeholder="請輸入真實姓名或暱稱" type="text"/>
 <label for="type">事由：</label>
 <select id="type">
 <option value="第一次問事">第一次問事</option>
@@ -192,17 +190,6 @@
     dateSelect.addEventListener('change', updateTimeOptions);
     window.addEventListener('DOMContentLoaded', updateTimeOptions);
 
-    submitBtn.addEventListener('click', async () => {
-      // 暱稱已移除，只使用 realname
-      const realname = document.getElementById('realname').value.trim();
-      const realname = document.getElementById('realname').value.trim();
-      const realname = document.getElementById('realname').value.trim();
-      const realname = document.getElementById('realname').value.trim();
-      const realname = document.getElementById('realname').value.trim();
-      const type = typeSelect.value;
-      const date = dateSelect.value;
-      const time = timeSelect.value;
-
       const { data: existing } = await supabase.from('signups').select('*').eq('nickname', nickname);
       if (existing.length >= 3) {
         alert('一人最多三個名額');
@@ -224,9 +211,9 @@
 
     exportBtn.addEventListener('click', async () => {
       const { data } = await supabase.from('signups').select('*');
-      const csv = ["﻿姓名,暱稱,事由,日期,時段"];
+      const csv = ["﻿姓名/暱稱,事由,日期,時段"];
       data.forEach(row => {
-        csv.push(`${row.realname || ""},${row.nickname || ""},${row.type},${row.date},${row.time}`);
+        csv.push(`${row.realname || ""}/${row.nickname || ""},${row.type},${row.date},${row.time}`);
       });
       const blob = new Blob(["﻿" + csv.join("\n")], { type: "text/csv;charset=utf-8;" });
       const a = document.createElement("a");
