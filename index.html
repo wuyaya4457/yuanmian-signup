@@ -30,7 +30,7 @@
     }
 
     .logo {
-      width: 100px;
+      width: 120px;
       margin-bottom: 1em;
     }
 
@@ -72,19 +72,17 @@
       background-color: #912f29;
     }
 
-    #exportBtn {
-      margin-top: 2em;
-      background-color: #444;
+    #notice, #fullNotice {
+      margin-top: 0.8em;
+      font-weight: bold;
     }
 
-    #exportBtn:hover {
-      background-color: #222;
+    #notice {
+      color: #333;
     }
 
     #fullNotice {
       color: red;
-      font-weight: bold;
-      margin-top: 1em;
     }
   </style>
 </head>
@@ -93,7 +91,7 @@
     <img src="logo.png" alt="圓滿宮Logo" class="logo" />
     <h1>圓滿宮聖事報名</h1>
     <form id="bookingForm">
-      <label for="nickname">暱稱 / 代號：</label>
+      <label for="nickname">姓名 / 暱稱：</label>
       <input type="text" id="nickname" name="nickname" required />
 
       <label for="reason">事由：</label>
@@ -107,18 +105,18 @@
       <label for="date">辦事日期：</label>
       <select id="date" name="date" required>
         <option value="">請選擇</option>
-        <option value="2025-07-12">7月12日（五）</option>
-        <option value="2025-07-20">7月20日（日）</option>
+        <option value="2025-07-12">2025/07/12（六）</option>
+        <option value="2025-07-20">2025/07/20（日）</option>
       </select>
+
+      <div id="notice"></div>
+      <div id="fullNotice" style="display:none;">本日名額已滿，請選擇其他日期</div>
 
       <label for="time">時段：</label>
       <select id="time" name="time" required></select>
 
-      <div id="fullNotice" style="display:none;">本日名額已滿，請選擇其他日期</div>
-
       <button type="submit" id="submitBtn">送出</button>
     </form>
-    <button id="exportBtn">匯出報名資料 Excel</button>
   </div>
 
   <script>
@@ -132,6 +130,7 @@
       const dateSelect = document.getElementById("date");
       const form = document.getElementById("bookingForm");
       const fullNotice = document.getElementById("fullNotice");
+      const notice = document.getElementById("notice");
       const submitBtn = document.getElementById("submitBtn");
 
       const times = [
@@ -142,7 +141,7 @@
         "17:00"
       ];
 
-      async function checkDateAvailability(date) {
+      async function updateCount(date) {
         const { data, error } = await supabase
           .from("bookings")
           .select("*", { count: "exact" })
@@ -150,21 +149,24 @@
         return (data || []).length;
       }
 
-      async function populateTimes() {
+      async function updateUI() {
+        const selected = dateSelect.value;
+        const timeParts = selected.split(" ")[0]; // date only
+        if (!timeParts) return;
+
+        const count = await updateCount(timeParts);
+        notice.innerText = `本日剩餘名額：${15 - count} / 15`;
+
         timeSelect.innerHTML = "";
         fullNotice.style.display = "none";
         submitBtn.disabled = false;
 
-        const selectedDate = dateSelect.value;
-        if (!selectedDate) return;
-
-        const count = await checkDateAvailability(selectedDate);
         if (count >= 15) {
           const opt = document.createElement("option");
           opt.textContent = "本日已額滿";
           timeSelect.appendChild(opt);
-          submitBtn.disabled = true;
           fullNotice.style.display = "block";
+          submitBtn.disabled = true;
           return;
         }
 
@@ -181,51 +183,39 @@
         });
       }
 
-      dateSelect.addEventListener("change", populateTimes);
-      populateTimes();
+      dateSelect.addEventListener("change", updateUI);
+      updateUI();
 
       form.addEventListener("submit", async function (e) {
         e.preventDefault();
         const nickname = document.getElementById("nickname").value;
         const reason = document.getElementById("reason").value;
-        const date = document.getElementById("date").value;
+        const dateRaw = document.getElementById("date").value;
         const time = document.getElementById("time").value;
+        const date = dateRaw.split(" ")[0];
 
         if (!nickname || !reason || !date || !time) {
           alert("請完整填寫資料！");
           return;
         }
 
-        const count = await checkDateAvailability(date);
+        const count = await updateCount(date);
         if (count >= 15) {
           alert("本日已額滿，請選擇其他日期！");
           return;
         }
 
-        const { data, error } = await supabase.from("bookings").insert([
+        const { error } = await supabase.from("bookings").insert([
           { nickname, reason, date, time }
         ]);
 
         if (error) {
           alert("發生錯誤，請稍後再試！");
-          console.error(error);
         } else {
           alert("報名成功，祝闔家平安！");
           form.reset();
-          populateTimes();
+          updateUI();
         }
-      });
-
-      document.getElementById("exportBtn").addEventListener("click", async () => {
-        const { data, error } = await supabase.from("bookings").select("*");
-        if (error) {
-          alert("匯出失敗！");
-          return;
-        }
-        const worksheet = XLSX.utils.json_to_sheet(data);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "報名資料");
-        XLSX.writeFile(workbook, "圓滿宮報名資料.xlsx");
       });
     });
   </script>
