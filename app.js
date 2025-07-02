@@ -8,7 +8,7 @@ const supabase = createClient(
 
 const dateSelect = document.getElementById('date');
 const timeSelect = document.getElementById('time');
-const nameInput = document.getElementById('realname');
+const realnameInput = document.getElementById('realname');
 const typeSelect = document.getElementById('type');
 const submitBtn = document.getElementById('submit');
 const successMsg = document.getElementById('success-msg');
@@ -19,7 +19,7 @@ const TIMES = [];
 for (let h = 9; h <= 17; h++) {
   for (let m of [0, 30]) {
     if (h === 12) continue;
-    TIMES.push(`${String(h).padStart(2, '0')}:${m === 0 ? '00' : '30'}`);
+    TIMES.push(\`\${String(h).padStart(2, '0')}:\${m === 0 ? '00' : '30'}\`);
   }
 }
 
@@ -28,62 +28,77 @@ async function updateTimeOptions() {
   const { data } = await supabase.from('signups').select('*').eq('date', date);
   const filled = {};
   TIMES.forEach(t => filled[t] = []);
-  data.forEach(item => filled[item.time].push(item.realname || item.nickname));
+  data.forEach(item => filled[item.time].push(item.realname));
   timeSelect.innerHTML = '';
   TIMES.forEach(t => {
     const option = document.createElement('option');
     option.value = t;
-    option.textContent = `${t}（${filled[t].length}人）`;
+    option.textContent = \`\${t}（\${filled[t].length}人）\`;
     if (filled[t].length >= 1) option.disabled = true;
     timeSelect.appendChild(option);
   });
-  counter.textContent = `本日剩餘名額：${15 - data.length} / 15`;
+  counter.textContent = \`本日剩餘名額：\${15 - data.length} / 15\`;
 }
 
 dateSelect.addEventListener('change', updateTimeOptions);
 window.addEventListener('DOMContentLoaded', updateTimeOptions);
 
 submitBtn.addEventListener('click', async () => {
-  const realname = nameInput.value.trim();
-  const type = typeSelect.value;
   const date = dateSelect.value;
   const time = timeSelect.value;
+  const realname = realnameInput.value.trim();
+  const type = typeSelect.value;
 
-  if (!realname || !type || !date || !time) {
-    alert('請填寫所有欄位');
+  if (!realname || !date || !time) {
+    alert("請完整填寫資料");
     return;
   }
 
-  try {
-    const { data: existing } = await supabase.from('signups').select('*').eq('realname', realname);
-    if (existing.length >= 3) {
-      alert('一人最多三個名額');
-      return;
-    }
+  const { data: existing, error: checkError } = await supabase
+    .from('signups')
+    .select('*')
+    .eq('realname', realname);
 
-    const { data: slotCheck } = await supabase.from('signups').select('*').eq('date', date).eq('time', time);
-    if (slotCheck.length >= 1) {
-      alert('該時段已滿');
-      return;
-    }
+  if (checkError) {
+    alert("資料查詢失敗，請稍後再試");
+    console.error(checkError);
+    return;
+  }
 
-    const { error } = await supabase.from('signups').insert([{ realname, type, date, time }]);
-    if (!error) {
-      successMsg.textContent = '報名成功，祝闔家平安';
-      updateTimeOptions();
-    } else {
-      alert('報名失敗：' + error.message);
-    }
-  } catch (e) {
-    alert('發生錯誤：' + e.message);
+  if ((existing?.length || 0) >= 3) {
+    alert('一人最多三個名額');
+    return;
+  }
+
+  const { data: slotCheck } = await supabase
+    .from('signups')
+    .select('*')
+    .eq('date', date)
+    .eq('time', time);
+
+  if ((slotCheck?.length || 0) >= 1) {
+    alert('該時段已滿');
+    return;
+  }
+
+  const { error } = await supabase.from('signups').insert([
+    { realname, type, date, time }
+  ]);
+
+  if (!error) {
+    successMsg.textContent = '報名成功，祝闔家平安';
+    updateTimeOptions();
+  } else {
+    alert("報名失敗，請稍後再試");
+    console.error(error);
   }
 });
 
 exportBtn.addEventListener('click', async () => {
   const { data } = await supabase.from('signups').select('*');
-  const csv = ["﻿姓名/暱稱,事由,日期,時段"];
+  const csv = ["﻿姓名 / 暱稱,事由,日期,時段"];
   data.forEach(row => {
-    csv.push(`${row.realname || ""},${row.type},${row.date},${row.time}`);
+    csv.push(\`\${row.realname || ""},\${row.type},\${row.date},\${row.time}\`);
   });
   const blob = new Blob(["﻿" + csv.join("\n")], { type: "text/csv;charset=utf-8;" });
   const a = document.createElement("a");
