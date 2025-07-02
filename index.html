@@ -5,180 +5,97 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>圓滿宮聖事報名</title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Noto Sans TC', sans-serif; background: linear-gradient(to right, #f3f4f6, #e5e7eb); padding: 2em; max-width: 800px; margin: auto; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-    h1, h2 { text-align: center; color: #1f2937; }
-    label { font-weight: bold; margin-top: 1.5em; }
-    input, select { padding: 0.75em; border: 1px solid #d1d5db; border-radius: 8px; margin-top: 0.5em; width: 100%; box-sizing: border-box; background-color: #fff; }
-    button { background-color: #3b82f6; color: white; font-weight: bold; border: none; border-radius: 8px; padding: 0.75em; margin-top: 2em; width: 100%; cursor: pointer; transition: background-color 0.3s ease; }
-    button:hover { background-color: #2563eb; }
-    .success, .error { margin-top: 1em; font-weight: bold; text-align: center; padding: 1em; border-radius: 8px; }
-    .success { background-color: #d1fae5; color: #065f46; }
-    .error { background-color: #fee2e2; color: #b91c1c; }
-    table { width: 100%; border-collapse: collapse; margin-top: 2em; background-color: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-    th { background-color: #f9fafb; color: #111827; }
-    th, td { border: 1px solid #e5e7eb; padding: 0.75em; text-align: center; }
-  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
 <body>
-  <div style="text-align: center; margin-bottom: 1.5em;">
-    <img src="./logo.jpg" alt="圓滿宮 logo" style="max-width: 150px; height: auto; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-  </div>
-  <h1>圓滿宮問事報名系統</h1>
-  <p style="text-align:center; font-weight:bold; color:#b45309;">⚠️ 一人最多報名三個名額，請勿重複填寫。</p>
+  <h1>圓滿宮聖事報名</h1>
+  <p>一人最多報名三個名額。</p>
 
-  <form id="signup-form">
-    <label for="nickname">暱稱／代號：</label>
-    <input type="text" id="nickname" required />
+  <label for="date">選擇辦事日期：</label>
+  <select id="date">
+    <option value="2025-07-12" selected>2025-07-12</option>
+    <option value="2025-07-20">2025-07-20</option>
+  </select>
 
-    <label for="reason">事由：</label>
-    <select id="reason" required>
-      <option value="第一次問事">第一次問事</option>
-      <option value="問事">問事</option>
-      <option value="開單">開單</option>
-    </select>
+  <label for="time">選擇時段：</label>
+  <select id="time"></select>
 
-    <label for="date">選擇日期：</label>
-    <select id="date" required></select>
+  <label for="name">暱稱：</label>
+  <input type="text" id="name" />
 
-    <label for="timeslot">選擇時段：</label>
-    <select id="timeslot" required></select>
+  <label for="type">事由：</label>
+  <select id="type">
+    <option value="第一次問事">第一次問事</option>
+    <option value="問事">問事</option>
+    <option value="開單">開單</option>
+  </select>
 
-    <button type="submit">提交報名</button>
-  </form>
+  <button id="submit">提交報名</button>
+  <div id="success-msg"></div>
+  <script>
+    const { createClient } = supabase;
+    const supabaseUrl = 'https://ygtffksgngkwpuxpfuez.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlndGZma3Nnbmdrd3B1eHBmdWV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEzNjgwMjIsImV4cCI6MjA2Njk0NDAyMn0.o25-6PeqngEQdGGFw5n0JRkn7tdxrJuNGPbzdvTATY8';
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
-  <div class="success" id="success-msg" style="display:none;">報名成功，祝闔家平安！</div>
-  <div class="error" id="error-msg" style="display:none;"></div>
+    const TIMES = [];
+    for (let h = 9; h <= 17; h++) {
+      for (let m of [0, 30]) {
+        if (h === 12) continue;
+        TIMES.push(`${String(h).padStart(2, '0')}:${m === 0 ? '00' : '30'}`);
+      }
+    }
 
-  <hr />
-  <h2>報名資料總覽（僅供主辦人使用）</h2>
-  <button onclick="verifyAndExport()">匯出 Excel 檔</button>
-  <table id="signup-table">
-    <thead>
-      <tr><th>暱稱／代號</th><th>事由</th><th>日期</th><th>時段</th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+    const dateSelect = document.getElementById('date');
+    const timeSelect = document.getElementById('time');
+    const nameInput = document.getElementById('name');
+    const typeSelect = document.getElementById('type');
+    const submitBtn = document.getElementById('submit');
+    const successMsg = document.getElementById('success-msg');
 
-<script>
-  // 🔧 每月底只要改這裡兩行 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
-  const dateOptions = [
-    { value: "2025-08-03", label: "8月03日" },
-    { value: "2025-08-17", label: "8月17日" }
-  ];
-  // ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑🔧 就這裡
+    async function updateTimeOptions() {
+      const date = dateSelect.value;
+      const { data } = await supabase.from('signups').select('*').eq('date', date);
+      const filled = {};
+      TIMES.forEach(t => filled[t] = []);
+      data.forEach(item => filled[item.time].push(item.nickname));
+      timeSelect.innerHTML = '';
+      TIMES.forEach(t => {
+        const option = document.createElement('option');
+        option.value = t;
+        option.textContent = `${t}（${filled[t].length}人）`;
+        if (filled[t].length >= 1) option.disabled = true;
+        timeSelect.appendChild(option);
+      });
+    }
 
-  const dateSelect = document.getElementById("date");
-  dateOptions.forEach(opt => {
-    const el = document.createElement("option");
-    el.value = opt.value;
-    el.textContent = opt.label;
-    dateSelect.appendChild(el);
-  });
+    dateSelect.addEventListener('change', updateTimeOptions);
+    window.addEventListener('DOMContentLoaded', updateTimeOptions);
 
-  const timeSlots = [];
-  for (let h = 9; h < 17; h++) {
-    if (h === 12) continue;
-    timeSlots.push(`${h}:00`, `${h}:30`);
-  }
-  const timeSelect = document.getElementById("timeslot");
-  timeSlots.forEach(t => {
-    const el = document.createElement("option");
-    el.value = t;
-    el.textContent = t;
-    timeSelect.appendChild(el);
-  });
+    submitBtn.addEventListener('click', async () => {
+      const nickname = nameInput.value.trim();
+      const type = typeSelect.value;
+      const date = dateSelect.value;
+      const time = timeSelect.value;
 
-  const form = document.getElementById("signup-form");
-  const successMsg = document.getElementById("success-msg");
-  const errorMsg = document.getElementById("error-msg");
+      const { data: existing } = await supabase.from('signups').select('*').eq('nickname', nickname);
+      if (existing.length >= 3) {
+        alert('一人最多三個名額');
+        return;
+      }
 
-  const maxPerSlot = 1;
-  const maxPerDay = 15;
-  const maxPerPerson = 3;
-  const storageKey = "anonymousSignups";
+      const { data: slotCheck } = await supabase.from('signups').select('*').eq('date', date).eq('time', time);
+      if (slotCheck.length >= 1) {
+        alert('該時段已滿');
+        return;
+      }
 
-  function loadData() {
-    return JSON.parse(localStorage.getItem(storageKey) || "[]");
-  }
-
-  function saveData(data) {
-    localStorage.setItem(storageKey, JSON.stringify(data));
-  }
-
-  function renderTable() {
-    const data = loadData();
-    const tbody = document.querySelector("#signup-table tbody");
-    tbody.innerHTML = "";
-    data.forEach(d => {
-      const row = document.createElement("tr");
-      row.innerHTML = `<td>${d.nickname}</td><td>${d.reason}</td><td>${d.date}</td><td>${d.timeslot}</td>`;
-      tbody.appendChild(row);
+      const { error } = await supabase.from('signups').insert([{ nickname, type, date, time }]);
+      if (!error) {
+        successMsg.textContent = '報名成功，祝闔家平安';
+        updateTimeOptions();
+      }
     });
-  }
-
-  function verifyAndExport() {
-    const input = prompt("請輸入主事人密碼才能匯出報名資料：");
-    if (input === "yuanman666") exportCSV();
-    else alert("密碼錯誤，無法匯出資料。");
-  }
-
-  function exportCSV() {
-    const data = loadData();
-    let csv = "暱稱／代號,事由,日期,時段\n";
-    data.forEach(d => {
-      csv += `${d.nickname},${d.reason},${d.date},${d.timeslot}\n`;
-    });
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "報名資料.csv";
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  form.addEventListener("submit", function (e) {
-    e.preventDefault();
-    const nickname = document.getElementById("nickname").value.trim();
-    const reason = document.getElementById("reason").value;
-    const date = document.getElementById("date").value;
-    const timeslot = document.getElementById("timeslot").value;
-
-    const data = loadData();
-
-    if (data.filter(d => d.nickname === nickname).length >= maxPerPerson) {
-      errorMsg.textContent = "每人最多可報名三個名額。";
-      successMsg.style.display = "none";
-      errorMsg.style.display = "block";
-      return;
-    }
-
-    const sameDate = data.filter(d => d.date === date);
-    if (sameDate.length >= maxPerDay) {
-      errorMsg.textContent = "本日名額已滿，請選擇其他日期。";
-      successMsg.style.display = "none";
-      errorMsg.style.display = "block";
-      return;
-    }
-
-    if (sameDate.filter(d => d.timeslot === timeslot).length >= maxPerSlot) {
-      errorMsg.textContent = "此時段已額滿，請選擇其他時段。";
-      successMsg.style.display = "none";
-      errorMsg.style.display = "block";
-      return;
-    }
-
-    data.push({ nickname, reason, date, timeslot });
-    saveData(data);
-    renderTable();
-    form.reset();
-    errorMsg.style.display = "none";
-    successMsg.style.display = "block";
-  });
-
-  renderTable();
-</script>
+  </script>
 </body>
 </html>
