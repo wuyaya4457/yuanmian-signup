@@ -1,113 +1,38 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="utf-8" />
-  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>圓滿宮聖事報名</title>
-  <link href="manifest.json?v=3" rel="manifest" />
-  <style>
-    body {
-      font-family: "Noto Sans TC", sans-serif;
-      background: linear-gradient(to bottom right, #fdf6f0, #f3ece6);
-      color: #43302e;
-      padding: 2rem;
-      margin: 0;
-    }
-    .container {
-      background: #ffffffdd;
-      padding: 2.5rem 2rem;
-      border-radius: 20px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-      max-width: 500px;
-      margin: auto;
-    }
-    img.logo {
-      width: 110px;
-      display: block;
-      margin: 0 auto 1rem;
-      border-radius: 12px;
-    }
-    h2 {
-      text-align: center;
-      color: #b30000;
-      margin-bottom: 0.5rem;
-      font-size: 1.8rem;
-    }
-    p, .counter {
-      text-align: center;
-      font-size: 0.95rem;
-      color: #5a4440;
-    }
-    label {
-      display: block;
-      margin-top: 1.5rem;
-      font-weight: 600;
-    }
-    select, input {
-      width: 100%;
-      padding: 0.7rem;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      margin-top: 0.4rem;
-      background: #fefefe;
-    }
-    button {
-      margin-top: 2rem;
-      padding: 0.8rem;
-      font-size: 1rem;
-      width: 100%;
-      background-color: #b33939;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.2s ease-in-out;
-    }
-    button:hover {
-      background-color: #991f1f;
-    }
-    #success-msg {
-      margin-top: 1.5rem;
-      color: green;
-      text-align: center;
-      font-weight: bold;
-    }
-    #export-btn {
-      margin-top: 1rem;
-      background: #444;
-    }
-    @media (max-width: 600px) {
-      body { padding: 1rem; }
-      .container { padding: 2rem 1.5rem; }
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
-    <img class="logo" src="logo.png?v=3" alt="圓滿宮 Logo" />
-    <h2>圓滿宮聖事報名</h2>
-    <p><strong>提醒：</strong>一人最多報名三個名額。</p>
-    <label for="date">辦事日期：</label>
-    <select id="date">
-      <option value="2025-07-12">2025-07-12</option>
-      <option value="2025-07-20">2025-07-20</option>
-    </select>
-    <div class="counter" id="counter"></div>
-    <label for="time">時段選擇：</label>
-    <select id="time"></select>
-    <label for="realname">姓名 / 暱稱：</label>
-    <input id="realname" placeholder="請輸入真實姓名或暱稱" type="text" />
-    <label for="type">事由：</label>
-    <select id="type">
+  <h1>圓滿宮聖事報名</h1>
+  <form id="bookingForm">
+    <label for="nickname">暱稱 / 代號：</label>
+    <input type="text" id="nickname" name="nickname" required />
+
+    <label for="reason">事由：</label>
+    <select id="reason" name="reason" required>
+      <option value="">請選擇</option>
       <option value="第一次問事">第一次問事</option>
       <option value="問事">問事</option>
       <option value="開單">開單</option>
     </select>
-    <button id="submit">提交報名</button>
-    <button id="export-btn">匯出 Excel</button>
-    <div id="success-msg"></div>
-  </div>
-  <script type="module" src="app.js?v=3"></script>
+
+    <label for="date">辦事日期：</label>
+    <select id="date" name="date" required>
+      <option value="">請選擇</option>
+      <option value="2025-07-12">7月12日（五）</option>
+      <option value="2025-07-20">7月20日（日）</option>
+    </select>
+
+    <label for="time">時段：</label>
+    <select id="time" name="time" required></select>
+
+    <button type="submit" id="submitBtn">送出</button>
+  </form>
+
+  <script src="script.js" defer></script>
 </body>
 </html>
