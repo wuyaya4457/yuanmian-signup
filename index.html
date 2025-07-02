@@ -4,221 +4,98 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>圓滿宮聖事報名</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.6/dist/umd/supabase.min.js"></script>
-  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <link rel="icon" href="logo.png" />
   <style>
-    body {
-      font-family: "Noto Sans TC", sans-serif;
-      background: linear-gradient(135deg, #fff8f0, #ffe4e1);
-      margin: 0;
-      padding: 0;
-    }
-
-    .container {
-      max-width: 500px;
-      background-color: #ffffffdd;
-      margin: 2em auto;
-      padding: 2em;
-      border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      text-align: center;
-    }
-
-    h1 {
-      margin-bottom: 1em;
-      color: #b3443c;
-    }
-
-    .logo {
-      width: 120px;
-      margin-bottom: 1em;
-    }
-
-    form {
-      text-align: left;
-    }
-
-    label {
-      margin-top: 1em;
-      display: block;
-      color: #333;
-      font-weight: bold;
-    }
-
-    input, select {
-      width: 100%;
-      padding: 0.6em;
-      margin-top: 0.3em;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      box-sizing: border-box;
-      font-size: 1em;
-    }
-
-    button {
-      width: 100%;
-      margin-top: 1.5em;
-      padding: 0.8em;
-      font-size: 1.1em;
-      color: #fff;
-      background-color: #b3443c;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    button:hover {
-      background-color: #912f29;
-    }
-
-    #notice, #fullNotice {
-      margin-top: 0.8em;
-      font-weight: bold;
-    }
-
-    #notice {
-      color: #333;
-    }
-
-    #fullNotice {
-      color: red;
-    }
+    body { font-family: sans-serif; margin: 0; background: #fff5f5; }
+    .container { max-width: 420px; margin: auto; padding: 2rem; background: white; border-radius: 16px; box-shadow: 0 0 12px rgba(0,0,0,0.2); }
+    h1 { text-align: center; color: #b40000; }
+    label { display: block; margin-top: 1rem; font-weight: bold; }
+    input, select { width: 100%; padding: 0.5rem; margin-top: 0.25rem; border: 1px solid #ccc; border-radius: 8px; }
+    button { width: 100%; padding: 0.75rem; background: #b40000; color: white; border: none; border-radius: 8px; font-size: 1rem; margin-top: 1.5rem; }
+    #remainingCount { color: #b40000; margin-top: 0.5rem; font-weight: bold; }
+    img.logo { display: block; margin: auto; width: 120px; margin-bottom: 1rem; }
   </style>
 </head>
 <body>
   <div class="container">
-    <img src="logo.png" alt="圓滿宮Logo" class="logo" />
+    <img src="logo.png" class="logo" alt="圓滿宮 Logo"/>
     <h1>圓滿宮聖事報名</h1>
-    <form id="bookingForm">
-      <label for="nickname">姓名 / 暱稱：</label>
-      <input type="text" id="nickname" name="nickname" required />
-
-      <label for="reason">事由：</label>
-      <select id="reason" name="reason" required>
-        <option value="">請選擇</option>
-        <option value="第一次問事">第一次問事</option>
-        <option value="問事">問事</option>
-        <option value="開單">開單</option>
-      </select>
-
-      <label for="date">辦事日期：</label>
-      <select id="date" name="date" required>
-        <option value="">請選擇</option>
-        <option value="2025-07-12">2025/07/12（六）</option>
-        <option value="2025-07-20">2025/07/20（日）</option>
-      </select>
-
-      <div id="notice"></div>
-      <div id="fullNotice" style="display:none;">本日名額已滿，請選擇其他日期</div>
-
-      <label for="time">時段：</label>
-      <select id="time" name="time" required></select>
-
-      <button type="submit" id="submitBtn">送出</button>
-    </form>
+    <p><strong>提醒：</strong>一人最多報名三個名額。</p>
+    <label>辦事日期：</label>
+    <select id="dateSelect">
+      <option value="2025-07-12">2025-07-12（六）</option>
+      <option value="2025-07-20">2025-07-20（日）</option>
+    </select>
+    <label>時段選擇：</label>
+    <select id="timeSelect"></select>
+    <label>姓名 / 暱稱：</label>
+    <input id="nickname" placeholder="請輸入暱稱" />
+    <label>事由：</label>
+    <select id="reasonSelect">
+      <option value="第一次問事">第一次問事</option>
+      <option value="問事">問事</option>
+      <option value="開單">開單</option>
+    </select>
+    <div id="remainingCount">尚餘名額：-- / 15</div>
+    <button onclick="submitForm()">送出報名</button>
   </div>
-
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script>
-    const supabase = window.supabase.createClient(
-      "https://ygtffksgngkwpuxpfuez.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlndGZma3Nnbmdrd3B1eHBmdWV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEzNjgwMjIsImV4cCI6MjA2Njk0NDAyMn0.o25-6PeqngEQdGGFw5n0JRkn7tdxrJuNGPbzdvTATY8"
-    );
+    const supabaseUrl = "https://ygtffksgngkwpuxpfuez.supabase.co";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    document.addEventListener("DOMContentLoaded", function () {
-      const timeSelect = document.getElementById("time");
-      const dateSelect = document.getElementById("date");
-      const form = document.getElementById("bookingForm");
-      const fullNotice = document.getElementById("fullNotice");
-      const notice = document.getElementById("notice");
-      const submitBtn = document.getElementById("submitBtn");
+    const dateSelect = document.getElementById('dateSelect');
+    const timeSelect = document.getElementById('timeSelect');
+    const remainingCount = document.getElementById('remainingCount');
 
-      const times = [
-        "09:00", "09:30", "10:00", "10:30",
-        "11:00", "11:30",
-        "13:00", "13:30", "14:00", "14:30",
-        "15:00", "15:30", "16:00", "16:30",
-        "17:00"
-      ];
+    const times = [
+      "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
+      "13:00", "13:30", "14:00", "14:30", "15:00", "15:30",
+      "16:00", "16:30", "17:00"
+    ];
 
-      async function updateCount(date) {
-        const { data, error } = await supabase
-          .from("bookings")
-          .select("*", { count: "exact" })
-          .eq("date", date);
-        return (data || []).length;
-      }
+    async function updateTimeOptions() {
+      const date = dateSelect.value;
+      const { data, error } = await supabase
+        .from("bookings")
+        .select("time")
+        .eq("date", date);
 
-      async function updateUI() {
-        const selected = dateSelect.value;
-        const timeParts = selected.split(" ")[0]; // date only
-        if (!timeParts) return;
+      const taken = data ? data.map(d => d.time) : [];
 
-        const count = await updateCount(timeParts);
-        notice.innerText = `本日剩餘名額：${15 - count} / 15`;
-
-        timeSelect.innerHTML = "";
-        fullNotice.style.display = "none";
-        submitBtn.disabled = false;
-
-        if (count >= 15) {
-          const opt = document.createElement("option");
-          opt.textContent = "本日已額滿";
-          timeSelect.appendChild(opt);
-          fullNotice.style.display = "block";
-          submitBtn.disabled = true;
-          return;
-        }
-
-        const opt = document.createElement("option");
-        opt.value = "";
-        opt.textContent = "請選擇";
-        timeSelect.appendChild(opt);
-
-        times.forEach(t => {
-          const option = document.createElement("option");
-          option.value = t;
-          option.textContent = t;
-          timeSelect.appendChild(option);
-        });
-      }
-
-      dateSelect.addEventListener("change", updateUI);
-      updateUI();
-
-      form.addEventListener("submit", async function (e) {
-        e.preventDefault();
-        const nickname = document.getElementById("nickname").value;
-        const reason = document.getElementById("reason").value;
-        const dateRaw = document.getElementById("date").value;
-        const dateFormatted = dateRaw.split(" ")[0]; // 格式：YYYY-MM-DD
-        const time = document.getElementById("time").value;
-        const date = dateRaw.split(" ")[0]; // 格式：YYYY-MM-DD
-
-        if (!nickname || !reason || !date || !time) {
-          alert("請完整填寫資料！");
-          return;
-        }
-
-        const count = await updateCount(dateFormatted); // 查詢當日報名數
-        if (count >= 15) {
-          alert("本日已額滿，請選擇其他日期！");
-          return;
-        }
-
-        const { error } = await supabase.from("bookings").insert([
-          { nickname, reason, date, time }
-        ]);
-
-        if (error) {
-          alert("發生錯誤，請稍後再試！");
-        } else {
-          alert("報名成功，祝闔家平安！");
-          form.reset();
-          updateUI();
-        }
+      timeSelect.innerHTML = "";
+      times.forEach(time => {
+        const disabled = taken.filter(t => t === time).length >= 15;
+        const option = document.createElement("option");
+        option.value = time;
+        option.textContent = time;
+        if (disabled) option.disabled = true;
+        timeSelect.appendChild(option);
       });
-    });
+
+      const total = data ? data.length : 0;
+      remainingCount.textContent = `本日剩餘名額：${15 - total} / 15`;
+    }
+
+    async function submitForm() {
+      const nickname = document.getElementById("nickname").value;
+      const reason = document.getElementById("reasonSelect").value;
+      const date = dateSelect.value;
+      const time = timeSelect.value;
+
+      if (!nickname || !time) return alert("請填寫完整欄位");
+
+      const { error } = await supabase.from("bookings").insert([
+        { nickname, reason, date, time }
+      ]);
+      if (error) return alert("發生錯誤，請稍後再試！");
+      alert("報名成功，祝闔家平安！");
+      updateTimeOptions();
+    }
+
+    dateSelect.addEventListener("change", updateTimeOptions);
+    document.addEventListener("DOMContentLoaded", updateTimeOptions);
   </script>
 </body>
 </html>
