@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -62,7 +63,9 @@
         .select("time")
         .eq("date", date);
 
-      const taken = data ? data.map(d => d.time) : [];
+      console.log("查詢結果", data, error);
+
+      const taken = data && Array.isArray(data) ? data.map(d => d.time) : [];
 
       timeSelect.innerHTML = "";
       times.forEach(time => {
