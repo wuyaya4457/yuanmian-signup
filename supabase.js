@@ -1,4 +1,3 @@
-// Replace with your actual Supabase values
-const SUPABASE_URL = "https://your-project.supabase.co";
-const SUPABASE_ANON_KEY = "your-anon-key";
+const SUPABASE_URL = "https://ygtffksgngkwpuxpfuez.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlndGZma3Nnbmdrd3B1eHBmdWV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEzNjgwMjIsImV4cCI6MjA2Njk0NDAyMn0.o25-6PeqngEQdGGFw5n0JRkn7tdxrJuNGPbzdvTATY8";
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
