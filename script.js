@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  const timeSlots = window.timeSlots;
   const dateSelect = document.getElementById("date");
   const timeSlotContainer = document.getElementById("timeSlots");
   const quotaDisplay = document.getElementById("quotaDisplay");
@@ -8,6 +7,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   let selectedDate = null;
   let selectedSlot = null;
   let allData = [];
+
+  const localTimeSlots = typeof timeSlots !== 'undefined' ? timeSlots : [
+    "09:00", "09:30", "10:00", "10:30",
+    "11:00", "11:30", "13:00", "13:30",
+    "14:00", "14:30", "15:00", "15:30",
+    "16:00", "16:30", "17:00"
+  ];
 
   // 載入可選日期
   availableDates.forEach(date => {
@@ -40,14 +46,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     allData = data;
     const total = data.length;
     quotaDisplay.textContent = `本日剩餘名額：${Math.max(0, maxPerDay - total)} / ${maxPerDay}`;
-    totalCount.textContent = `目前總報名人數：${(await supabase.from("registrations").select("id")).data.length}`;
+    const totalCountResult = await supabase.from("registrations").select("id", { count: "exact" });
+    if (totalCountResult.error) {
+      console.error("讀取總數錯誤", totalCountResult.error);
+    } else {
+      totalCount.textContent = `目前總報名人數：${totalCountResult.data.length}`;
+    }
 
     const slotCounts = {};
     data.forEach(entry => {
       slotCounts[entry.time_slot] = (slotCounts[entry.time_slot] || 0) + 1;
     });
 
-    timeSlots.forEach(slot => {
+    localTimeSlots.forEach(slot => {
       const btn = document.createElement("button");
       btn.textContent = slot;
 
