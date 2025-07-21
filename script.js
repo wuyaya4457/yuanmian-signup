@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", async () => {
+  const timeSlots = window.timeSlots;
   const dateSelect = document.getElementById("date");
   const timeSlotContainer = document.getElementById("timeSlots");
   const quotaDisplay = document.getElementById("quotaDisplay");
